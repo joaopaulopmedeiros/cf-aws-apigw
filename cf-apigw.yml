@@ -1,0 +1,19 @@
+Resources :
+    RestApi :
+        Type : AWS::ApiGateway::RestApi
+        Properties :
+            Body :
+                swagger : 2.0
+                info :
+                    version : 0.0.1
+                    title : test
+                basePath : /
+                schemes :
+                    - https
+                definitions:
+                    Empty :
+                        type : object
+            Name : apiBuiltWithCF
+            Description: Exemplo de API Gateway definido a partir de CloudFormation
+            Parameters:
+                endpointConfigurationTypes: REGIONAL
