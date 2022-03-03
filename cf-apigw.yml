@@ -1,19 +1,50 @@
-Resources :
-    RestApi :
-        Type : AWS::ApiGateway::RestApi
-        Properties :
-            Body :
-                swagger : 2.0
-                info :
-                    version : 0.0.1
-                    title : test
-                basePath : /
-                schemes :
+Resources:
+    # api gateway
+    ApiGateway:
+        Type: AWS::ApiGateway::RestApi
+        Properties:
+            Body:
+                swagger: 2.0
+                info:
+                    version: 0.0.1
+                    title: test
+                basePath: /
+                schemes:
                     - https
                 definitions:
-                    Empty :
-                        type : object
-            Name : apiBuiltWithCF
+                    Empty:
+                        type: object
+            Name: apiBuiltWithCF
             Description: Exemplo de API Gateway definido a partir de CloudFormation
             Parameters:
                 endpointConfigurationTypes: REGIONAL
+
+    # mock GET method for Gateway
+    MockGetMethod:
+        Type: AWS::ApiGateway::Method
+        Properties:
+            RestApiId: !Ref ApiGateway
+            ResourceId: !GetAtt ApiGateway.RootResourceId
+            HttpMethod: GET
+            AuthorizationType: NONE
+            Integration:
+              Type: MOCK
+              PassthroughBehavior: WHEN_NO_MATCH
+              IntegrationResponses:
+              - ResponseTemplates:
+                  application/json: '{"statusCode": 200,"message:": "Endpoint Works!"}'
+                StatusCode: '200'
+              RequestTemplates:
+                application/json: '{"statusCode": 200}'
+            MethodResponses:
+                - ResponseModels:
+                    application/json: Empty
+                  StatusCode: '200'
+    # dev stage
+    DevStage:
+        DependsOn: MockGetMethod
+        Type: AWS::ApiGateway::Deployment
+        Properties:
+          RestApiId:  !Ref ApiGateway
+          Description: Estágio de Desenvolvimento
+          StageName: dev
